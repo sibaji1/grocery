@@ -288,6 +288,15 @@ async setStatus(id,s){if(LIVE){const t=await need();const r=await rest("/rest/v1
 const L=LS.get("ms_demo_orders",[]),o=L.find(x=>x.id==id);if(o){o.status=s;LS.set("ms_demo_orders",L)}}
 };
 
+/* ---- WhatsApp: ready-made order message for the shop ---- */
+function waText(o,no){const L=[`New order ${no}`,`${o.name}, ${o.phone}`,`${o.type}: ${longDate(o.slot_date)}, ${t12(o.slot_hour)} to ${t12(o.slot_hour+1)}`];
+if(o.items.length)L.push("Items: "+o.items.map(i=>`${i.name} ${i.unit} x${i.qty}`).join(", "));
+if(o.has_photo)L.push("Handwritten list attached in the app.");
+if(o.address)L.push("Address: "+o.address);
+if(o.note)L.push("Note: "+o.note);
+L.push((o.total==null?"Total to be confirmed":"Total "+inr(o.total))+", pay by "+o.payment);return L.join("\n")}
+const waUrl=(o,no)=>{const n=String(CFG.OWNER_WHATSAPP||"").replace(/\D/g,"");return n?"https://wa.me/"+n+"?text="+encodeURIComponent(waText(o,no)):""};
+
 /* ---- placing an order ---- */
 let placing=false;
 async function place(){if(placing)return;rd();const E=[],ph=F.phone.trim();
@@ -302,7 +311,7 @@ const o={order_no:no,name:F.name.trim(),phone:ph,type:type,address:type=="Delive
 placing=true;err="";drawOrder();
 try{await api.place(o)}catch(x){placing=false;err="Could not send your order. Check your connection and try again.";return drawOrder()}
 placing=false;
-$("#app").innerHTML=`<section class="cd ok"><div style="font-size:3rem">✅</div><h2 class="okh">Pre-order placed</h2><p>Order number <b>${no}</b></p><p>${type}: ${longDate(date)}, ${t12(slot)} to ${t12(slot+1)}</p><p class="big" style="text-align:center">${LIST&&!sub()?"Total to be confirmed":inr(tot())}</p>${LIST?'<img class="lp" src="'+LIST+'" alt="Your handwritten grocery list"><p class="mu">Handwritten list received. The shop reads it and confirms your bill.</p>':""}<p class="mu">${pay=="UPI"?"Payment status: awaiting verification by the shop. It is not marked paid until the shop confirms it.":"Pay in cash on "+(type=="Pickup"?"pickup":"delivery")+"."} ${LIVE?"The shop has your order and will pack it for your slot.":"Demo mode: this order is saved on this device only."}</p><button class="btn k" onclick="show('home')">Back to home</button> <button class="btn" onclick="again()">Order again</button></section>`;window.scrollTo(0,0)}
+$("#app").innerHTML=`<section class="cd ok"><div style="font-size:3rem">✅</div><h2 class="okh">Pre-order placed</h2><p>Order number <b>${no}</b></p><p>${type}: ${longDate(date)}, ${t12(slot)} to ${t12(slot+1)}</p><p class="big" style="text-align:center">${LIST&&!sub()?"Total to be confirmed":inr(tot())}</p>${LIST?'<img class="lp" src="'+LIST+'" alt="Your handwritten grocery list"><p class="mu">Handwritten list received. The shop reads it and confirms your bill.</p>':""}<p class="mu">${pay=="UPI"?"Payment status: awaiting verification by the shop. It is not marked paid until the shop confirms it.":"Pay in cash on "+(type=="Pickup"?"pickup":"delivery")+"."} ${LIVE?"The shop has your order and will pack it for your slot.":"Demo mode: this order is saved on this device only."}</p>${waUrl(o,no)?`<p class="mu" style="margin-top:14px">Want it faster? Send the details straight to the shop.</p><a class="btn" style="background:var(--leaf)" href="${e(waUrl(o,no))}" target="_blank" rel="noopener">Send on WhatsApp</a><br>`:""}<button class="btn k" onclick="show('home')">Back to home</button> <button class="btn" onclick="again()">Order again</button></section>`;window.scrollTo(0,0)}
 
 /* ---- shop owner: sign in and orders ---- */
 let OF="new",ORD=null,OERR="",LEM="",OTIMER=null,CANCEL=null;
