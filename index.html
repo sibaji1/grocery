@@ -151,12 +151,35 @@ input.i,textarea{background:var(--fld);color:var(--tx);border:3px solid var(--ln
 .cd .okh{font-size:clamp(2rem,7vw,3rem);margin:6px 0 10px}
 .ok p{margin:6px 0}
 .ok .lp{max-width:260px}
+[hidden]{display:none!important}
+.btn.sm{padding:7px 14px;font-size:.95rem;border-radius:12px}
+.btn.ghost{background:var(--cd);color:var(--tx);border-color:var(--ln);box-shadow:3px 3px 0 var(--cs)}
+.oh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px 16px;flex-wrap:wrap}
+.oh>*{min-width:0}
+.ono{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:1.25rem}
+.chip{display:inline-block;border:2px solid var(--ln);border-radius:999px;padding:1px 10px;font-weight:600;font-size:.82rem;background:var(--gl);vertical-align:middle}
+.chip.new{background:var(--sun);color:var(--ink);border-color:var(--ink)}
+.chip.cancelled{background:var(--errbg);color:var(--bad)}
+.ol{margin:8px 0;padding-left:20px}
+.ot{font-family:"Baloo 2",sans-serif;font-size:1.3rem}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.lnk{background:none;border:0;padding:0;text-decoration:underline;font-weight:600;margin:4px 0}
+.tl-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+.tl{border:3px solid var(--ln);border-radius:16px;background:var(--cd);padding:10px 12px}
+.tl b{display:block;font-family:"Baloo 2",sans-serif;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.tl span{font-size:.85rem;color:var(--mu)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 14px}
+.tabs button{border:3px solid var(--ln);background:var(--cd);color:var(--tx);border-radius:999px;padding:4px 14px;font-weight:600;font-variant-numeric:tabular-nums}
+.tabs button.on{background:var(--onb);color:var(--onf);border-color:var(--onb)}
+#pv{position:fixed;inset:0;z-index:20;background:rgba(10,6,32,.88);display:grid;place-items:center;padding:16px;cursor:zoom-out}
+#pv img{max-width:94vw;max-height:88vh;border-radius:12px;background:#fff}
+.own{background:none;border:0;padding:0;text-decoration:underline;color:var(--mu);font-size:.9rem;margin-left:8px}
 </style>
 </head>
 <body>
 
 
-<nav><div class="w nv"><button class="lg" onclick="show('home')">🧺 Mahalaxmi Stores</button><a class="l" href="#how" onclick="return sec('how')">How it works</a><a class="l" href="#shop" onclick="return sec('shop')">What we stock</a><a class="l" href="#visit" onclick="return sec('visit')">Visit</a><button class="btn" onclick="toOrder()">Pre-order</button></div></nav>
+<nav><div class="w nv"><button class="lg" onclick="show('home')">🧺 Mahalaxmi Stores</button><a class="l" href="#how" onclick="return sec('how')">How it works</a><a class="l" href="#shop" onclick="return sec('shop')">What we stock</a><a class="l" href="#visit" onclick="return sec('visit')">Visit</a><a class="l" href="#owner" onclick="return toOwner()">Owner</a><button class="btn" onclick="toOrder()">Pre-order</button></div></nav>
 
 <div id="home">
 <main id="top">
@@ -169,11 +192,14 @@ input.i,textarea{background:var(--fld);color:var(--tx);border:3px solid var(--ln
 <section class="sec" id="visit" style="padding-top:20px"><div class="w vis"><div><h2>Come say hello</h2><p style="color:var(--mu);margin:0">Walk in any day, or collect your pre-order straight from the counter.</p></div><dl class="vc"><dt>Address</dt><dd>12 Market Road, Your Town (sample address)</dd><dt>Phone</dt><dd><a href="tel:+919876543210">+91 98765 43210</a> (sample)</dd><dt>Hours</dt><dd>9 AM to 8 PM, every day</dd><dt>Payment</dt><dd>UPI and cash</dd></dl></div></section>
 <section class="w"><div class="cta"><h2>Your basket is waiting.</h2><p>Choose your slot now and skip the evening rush.</p><button class="btn" onclick="toOrder()">Pre-order now</button></div></section>
 </main>
-<footer><div class="w">Mahalaxmi Stores. Contact details, products and slot availability on this site are sample content.</div></footer>
+<footer><div class="w">Mahalaxmi Stores. Contact details, products and slot availability on this site are sample content.<button class="own" onclick="toOwner()">Shop owner login</button></div></footer>
 </div>
 
 <main class="w ov" id="order" hidden><div id="app"></div></main>
+<main class="w ov" id="ownerv" hidden><div id="oapp"></div></main>
+<div id="pv" hidden onclick="this.hidden=true"><img alt="Customer's handwritten list"></div>
 
+<script src="config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const $=s=>document.querySelector(s),e=s=>String(s??"").replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
@@ -195,7 +221,7 @@ let LIST=null,LERR="",pay="Cash",Q=ITEMS.map((x,i)=>i<2?1:0),type="Pickup",date=
 V.setDate(1);V.setHours(0,0,0,0);
 
 /* navigation */
-function show(v,s){$("#home").hidden=v!="home";$("#order").hidden=v!="order";if(v=="order")drawOrder();if(s){const t=document.getElementById(s);if(t)t.scrollIntoView();return}window.scrollTo(0,0)}
+function show(v,s){$("#home").hidden=v!="home";$("#order").hidden=v!="order";$("#ownerv").hidden=v!="owner";if(v=="owner")startOwner();else stopOwner();if(v=="order")drawOrder();if(s){const t=document.getElementById(s);if(t)t.scrollIntoView();return}window.scrollTo(0,0)}
 function sec(s){show("home",s);return false}
 function toOrder(){if(pick!=null){date=ymd(dd(day));slot=pick;V=new Date(date+"T00:00:00");V.setDate(1);err=""}show("order")}
 
@@ -222,7 +248,7 @@ $("#app").innerHTML=`<button class="back" onclick="show('home')">← Back to hom
 <section class="cd"><h2>3. Choose a date</h2><div class="mh"><button onclick="mv(-1)" ${prev?"disabled":""} aria-label="Previous month">‹</button><b>${V.toLocaleDateString("en-IN",{month:"long",year:"numeric"})}</b><button onclick="mv(1)" ${next?"disabled":""} aria-label="Next month">›</button></div><div class="cal">${["Su","Mo","Tu","We","Th","Fr","Sa"].map(x=>`<span class="dh">${x}</span>`).join("")}${cells.join("")}</div><p class="mu">Booking opens ${ADV} hours ahead and up to ${DAYS} days out. Greyed days have no open slots.</p></section>
 <section class="cd"><h2>4. Choose a time slot</h2>${date?`<div class="os">${H.map(h=>{const s=state(date,h),fw=!s&&fewl(date,h);return`<label class="${s?"x":fw?"fw":""}"><input class="vh" type="radio" name="sl" value="${h}" ${s?"disabled":""} ${slot==h?"checked":""} onchange="ps(${h})">${t12(h)}<small>to ${t12(h+1)}${s?", "+s.toLowerCase():fw?", few left":""}</small></label>`}).join("")}</div>`:'<p class="mu">Pick a date first to see open slots.</p>'}</section>
 <section class="cd"><h2>5. Your details</h2><form id="ofm" onsubmit="return false"><label class="f" for="fname">Full name</label><input class="i" id="fname" name="name" value="${e(F.name)}" autocomplete="name"><label class="f" for="fphone">Mobile number</label><input class="i" id="fphone" name="phone" value="${e(F.phone)}" inputmode="numeric" maxlength="10" autocomplete="tel"><label class="f" for="faddr">${type=="Delivery"?"Delivery address":"Address (only for delivery)"}</label><textarea id="faddr" name="addr" rows="2" ${type=="Pickup"?"disabled":""}>${e(F.addr)}</textarea><label class="f" for="fnote">Instructions (optional)</label><textarea id="fnote" name="note" rows="2">${e(F.note)}</textarea></form></section></div>
-<aside class="sum"><section class="cd"><h2>Order total</h2>${ITEMS.map((x,i)=>Q[i]?`<div class="tr"><span>${x[0]} × ${Q[i]}</span><span>${inr(x[2]*Q[i])}</span></div>`:"").join("")||(LIST?'<p class="mu">Handwritten list attached. The shop reads it and confirms your final total.</p>':'<p class="mu">Your cart is empty. Add items to see the total.</p>')}<div class="tr top"><span>Subtotal</span><b>${inr(sub())}</b></div>${type=="Delivery"?`<div class="tr"><span>Delivery</span><b>${dc()?inr(dc()):"Free"}</b></div>`:""}<div class="tr" style="align-items:center"><span>You pay</span><span class="big">${LIST&&!sub()?"To be confirmed":inr(tot())}</span></div>${LIST?`<p class="mu">${sub()?"Your photo list is extra. The shop adds it to this total after reading it.":"The shop reads your list and confirms the bill before you pay."}</p>`:""}${date&&slot!=null?`<div class="pick">${type}: ${longDate(date)}, ${t12(slot)} to ${t12(slot+1)}</div>`:'<p class="mu">Choose a date and slot to finish.</p>'}<div class="seg" style="margin:12px 0"><label><input class="vh" type="radio" name="py" ${pay=="Cash"?"checked":""} onchange="pm('Cash')">Cash</label><label><input class="vh" type="radio" name="py" ${pay=="UPI"?"checked":""} onchange="pm('UPI')">Pay online (UPI)</label></div>${pay=="UPI"?(tot()>0?`<div class="qrb"><div id="qr"></div><p>Scan with any UPI app to pay <b>${inr(tot())}</b></p><p class="mu">UPI ID: ${e(UPI)}</p><p><a href="${e(upiUrl())}">Open in a UPI app on this phone</a></p><p class="mu">Sample UPI ID: replace it with the shop’s real one. The order is not marked paid until the shop confirms the payment.</p></div>`:'<p class="mu">'+(LIST?"The payment QR appears once the shop confirms your bill. You can also pay in cash.":"Add items to generate the payment QR.")+'</p>'):`<p class="mu">Pay in cash on ${type=="Pickup"?"pickup":"delivery"}.</p>`}<p class="mu">Minimum order ${inr(MIN)}.</p>${err?`<div class="err">${err}</div>`:""}<button class="btn" onclick="place()" ${ok?"":"disabled"}>Place pre-order${LIST&&!sub()?"":", "+inr(tot())}</button></section></aside></div>`;qr()}
+<aside class="sum"><section class="cd"><h2>Order total</h2>${ITEMS.map((x,i)=>Q[i]?`<div class="tr"><span>${x[0]} × ${Q[i]}</span><span>${inr(x[2]*Q[i])}</span></div>`:"").join("")||(LIST?'<p class="mu">Handwritten list attached. The shop reads it and confirms your final total.</p>':'<p class="mu">Your cart is empty. Add items to see the total.</p>')}<div class="tr top"><span>Subtotal</span><b>${inr(sub())}</b></div>${type=="Delivery"?`<div class="tr"><span>Delivery</span><b>${dc()?inr(dc()):"Free"}</b></div>`:""}<div class="tr" style="align-items:center"><span>You pay</span><span class="big">${LIST&&!sub()?"To be confirmed":inr(tot())}</span></div>${LIST?`<p class="mu">${sub()?"Your photo list is extra. The shop adds it to this total after reading it.":"The shop reads your list and confirms the bill before you pay."}</p>`:""}${date&&slot!=null?`<div class="pick">${type}: ${longDate(date)}, ${t12(slot)} to ${t12(slot+1)}</div>`:'<p class="mu">Choose a date and slot to finish.</p>'}<div class="seg" style="margin:12px 0"><label><input class="vh" type="radio" name="py" ${pay=="Cash"?"checked":""} onchange="pm('Cash')">Cash</label><label><input class="vh" type="radio" name="py" ${pay=="UPI"?"checked":""} onchange="pm('UPI')">Pay online (UPI)</label></div>${pay=="UPI"?(tot()>0?`<div class="qrb"><div id="qr"></div><p>Scan with any UPI app to pay <b>${inr(tot())}</b></p><p class="mu">UPI ID: ${e(UPI)}</p><p><a href="${e(upiUrl())}">Open in a UPI app on this phone</a></p><p class="mu">Sample UPI ID: replace it with the shop’s real one. The order is not marked paid until the shop confirms the payment.</p></div>`:'<p class="mu">'+(LIST?"The payment QR appears once the shop confirms your bill. You can also pay in cash.":"Add items to generate the payment QR.")+'</p>'):`<p class="mu">Pay in cash on ${type=="Pickup"?"pickup":"delivery"}.</p>`}<p class="mu">Minimum order ${inr(MIN)}.</p>${err?`<div class="err">${err}</div>`:""}<button class="btn" onclick="place()" ${ok&&!placing?"":"disabled"}>${placing?"Sending…":"Place pre-order"+(LIST&&!sub()?"":", "+inr(tot()))}</button></section></aside></div>`;qr()}
 function qt(i,d){rd();Q[i]=Math.max(0,Math.min(20,Q[i]+d));err="";drawOrder()}
 function ty(t){rd();type=t;err="";drawOrder()}
 function lf(i){rd();const f=i.files[0];LERR="";if(!f)return drawOrder();if(!/^image\/(jpeg|png|webp)$/.test(f.type)){LERR="Choose a JPG, PNG or WebP photo.";return drawOrder()}if(f.size>5242880){LERR="That photo is over 5 MB. Choose a smaller one.";return drawOrder()}const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);LIST=c.toDataURL("image/jpeg",.8);drawOrder()};im.onerror=()=>{LERR="That file could not be read as an image.";drawOrder()};im.src=r.result};r.readAsDataURL(f)}
@@ -233,7 +259,38 @@ function mv(d){rd();V.setMonth(V.getMonth()+d);drawOrder()}
 function pd(k){rd();date=k;if(slot!=null&&state(k,slot))slot=null;err="";drawOrder()}
 function ps(h){rd();slot=h;err="";drawOrder()}
 function again(){Q=ITEMS.map((x,i)=>i<2?1:0);LIST=null;LERR="";type="Pickup";pay="Cash";date=null;slot=null;pick=null;F={name:"",phone:"",addr:"",note:""};err="";drawHome();drawOrder();window.scrollTo(0,0)}
-function place(){rd();const E=[],ph=F.phone.trim();
+/* ---- data layer: live (Supabase REST) or demo (this device only) ---- */
+const CFG=window.SHOP_CONFIG||{},LIVE=!!(CFG.SUPABASE_URL&&CFG.SUPABASE_ANON_KEY),DEMO={email:"owner@demo.shop",pw:"demo1234"};
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(_){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}},del(k){try{localStorage.removeItem(k)}catch(_){}}};
+async function rest(path,opt,tok){opt=opt||{};
+const h=Object.assign({apikey:CFG.SUPABASE_ANON_KEY,Authorization:"Bearer "+(tok||CFG.SUPABASE_ANON_KEY),"Content-Type":"application/json"},opt.headers||{});
+const r=await fetch(CFG.SUPABASE_URL.replace(/\/$/,"")+path,Object.assign({},opt,{headers:h}));
+if(!r.ok){let m="";try{const j=await r.json();m=j.msg||j.message||j.error_description||j.error||""}catch(_){}const x=new Error(m||"Request failed ("+r.status+")");x.status=r.status;throw x}
+const t=await r.text();return t?JSON.parse(t):null}
+let SES=LS.get("ms_session",null);
+if(SES&&(LIVE?SES.demo:!SES.demo)){SES=null;LS.del("ms_session")}
+const mkSes=(j,em)=>({access_token:j.access_token,refresh_token:j.refresh_token,expires_at:j.expires_at||Math.floor(Date.now()/1000)+j.expires_in,email:(j.user&&j.user.email)||em});
+async function token(){if(!SES)return null;if(SES.expires_at-60>Date.now()/1000)return SES.access_token;
+try{const j=await rest("/auth/v1/token?grant_type=refresh_token",{method:"POST",body:JSON.stringify({refresh_token:SES.refresh_token})});SES=mkSes(j,SES.email);LS.set("ms_session",SES);return SES.access_token}catch(_){SES=null;LS.del("ms_session");return null}}
+const need=async()=>{const t=await token();if(!t){const x=new Error("Session expired. Sign in again.");x.status=401;throw x}return t};
+const api={
+async place(o){if(LIVE){await rest("/rest/v1/orders",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify(o)});return}
+const L=LS.get("ms_demo_orders",[]);L.push(Object.assign({},o,{id:"d"+Date.now()+Math.random().toString(36).slice(2,6),created_at:new Date().toISOString(),status:"new"}));LS.set("ms_demo_orders",L)},
+async login(em,pw){if(LIVE){const j=await rest("/auth/v1/token?grant_type=password",{method:"POST",body:JSON.stringify({email:em,password:pw})});SES=mkSes(j,em);LS.set("ms_session",SES);return}
+if(em.toLowerCase()==DEMO.email&&pw==DEMO.pw){SES={email:DEMO.email,demo:true};LS.set("ms_session",SES);return}
+const x=new Error("Wrong email or password.");x.status=400;throw x},
+logout(){SES=null;LS.del("ms_session")},
+async list(){if(LIVE){const t=await need();return rest("/rest/v1/orders?select=id,created_at,order_no,name,phone,type,address,note,slot_date,slot_hour,items,has_photo,subtotal,delivery,total,payment,status&order=created_at.desc&limit=300",{},t)}
+return LS.get("ms_demo_orders",[]).slice().reverse().map(o=>Object.assign({},o,{list_photo:undefined,has_photo:!!o.list_photo}))},
+async photo(id){if(LIVE){const t=await need();const r=await rest("/rest/v1/orders?id=eq."+encodeURIComponent(id)+"&select=list_photo",{},t);return r&&r[0]?r[0].list_photo:null}
+const o=LS.get("ms_demo_orders",[]).find(x=>x.id==id);return o?o.list_photo:null},
+async setStatus(id,s){if(LIVE){const t=await need();const r=await rest("/rest/v1/orders?id=eq."+encodeURIComponent(id),{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status:s})},t);if(!r||!r.length)throw new Error("Not allowed");return}
+const L=LS.get("ms_demo_orders",[]),o=L.find(x=>x.id==id);if(o){o.status=s;LS.set("ms_demo_orders",L)}}
+};
+
+/* ---- placing an order ---- */
+let placing=false;
+async function place(){if(placing)return;rd();const E=[],ph=F.phone.trim();
 if(!LIST&&sub()<MIN)E.push("Minimum order is "+inr(MIN)+".");
 if(!date||slot==null||state(date,slot))E.push("Choose an open date and time slot.");
 if(!F.name.trim())E.push("Enter your name.");
@@ -241,10 +298,60 @@ if(!/^[6-9]\d{9}$/.test(ph))E.push("Enter a valid 10-digit Indian mobile number.
 if(type=="Delivery"&&F.addr.trim().length<10)E.push("Enter your full delivery address.");
 if(E.length){err=E.join("<br>");return drawOrder()}
 const no="MS"+Math.floor(1000+Math.random()*9000)+"-"+Math.random().toString(36).slice(2,6).toUpperCase();
-$("#app").innerHTML=`<section class="cd ok"><div style="font-size:3rem">✅</div><h2 class="okh">Pre-order placed</h2><p>Order number <b>${no}</b></p><p>${type}: ${longDate(date)}, ${t12(slot)} to ${t12(slot+1)}</p><p class="big" style="text-align:center">${LIST&&!sub()?"Total to be confirmed":inr(tot())}</p>${LIST?'<img class="lp" src="'+LIST+'" alt="Your handwritten grocery list"><p class="mu">Handwritten list received. The shop reads it and confirms your bill.</p>':""}<p class="mu">${pay=="UPI"?"Payment status: awaiting verification by the shop. It is not marked paid until the shop confirms it.":"Pay in cash on "+(type=="Pickup"?"pickup":"delivery")+"."} This is a demo, so no order was sent to a shop.</p><button class="btn k" onclick="show('home')">Back to home</button> <button class="btn" onclick="again()">Order again</button></section>`;window.scrollTo(0,0)}
+const o={order_no:no,name:F.name.trim(),phone:ph,type:type,address:type=="Delivery"?F.addr.trim():null,note:F.note.trim()||null,slot_date:date,slot_hour:slot,items:ITEMS.map((x,i)=>({name:x[0],unit:x[1],qty:Q[i],price:x[2]})).filter(i=>i.qty>0),has_photo:!!LIST,list_photo:LIST||null,subtotal:sub(),delivery:dc(),total:LIST&&!sub()?null:tot(),payment:pay};
+placing=true;err="";drawOrder();
+try{await api.place(o)}catch(x){placing=false;err="Could not send your order. Check your connection and try again.";return drawOrder()}
+placing=false;
+$("#app").innerHTML=`<section class="cd ok"><div style="font-size:3rem">✅</div><h2 class="okh">Pre-order placed</h2><p>Order number <b>${no}</b></p><p>${type}: ${longDate(date)}, ${t12(slot)} to ${t12(slot+1)}</p><p class="big" style="text-align:center">${LIST&&!sub()?"Total to be confirmed":inr(tot())}</p>${LIST?'<img class="lp" src="'+LIST+'" alt="Your handwritten grocery list"><p class="mu">Handwritten list received. The shop reads it and confirms your bill.</p>':""}<p class="mu">${pay=="UPI"?"Payment status: awaiting verification by the shop. It is not marked paid until the shop confirms it.":"Pay in cash on "+(type=="Pickup"?"pickup":"delivery")+"."} ${LIVE?"The shop has your order and will pack it for your slot.":"Demo mode: this order is saved on this device only."}</p><button class="btn k" onclick="show('home')">Back to home</button> <button class="btn" onclick="again()">Order again</button></section>`;window.scrollTo(0,0)}
+
+/* ---- shop owner: sign in and orders ---- */
+let OF="new",ORD=null,OERR="",LEM="",OTIMER=null,CANCEL=null;
+function toOwner(){show("owner");return false}
+function startOwner(){drawOwner();if(SES)loadOrders();clearInterval(OTIMER);OTIMER=setInterval(()=>{if(SES&&!document.hidden)loadOrders()},20000)}
+function stopOwner(){clearInterval(OTIMER);OTIMER=null;document.title="Mahalaxmi Stores"}
+function badge(){const n=(ORD||[]).filter(o=>o.status=="new").length;document.title=(n&&SES?"("+n+") ":"")+"Mahalaxmi Stores"}
+async function loadOrders(){try{ORD=await api.list();OERR=""}catch(x){if(x.status==401){api.logout();ORD=null;OERR="Session expired. Sign in again."}else OERR="Could not load orders. Check your connection."}drawOwner();badge()}
+async function doLogin(){const em=$("#lem").value.trim(),pw=$("#lpw").value;LEM=em;if(!em||!pw){OERR="Enter your email and password.";return drawOwner()}
+try{await api.login(em,pw);OERR="";ORD=null;drawOwner();await loadOrders()}catch(x){OERR=x.status==400?"Wrong email or password.":"Could not sign in. Check your connection.";drawOwner()}}
+function doLogout(){api.logout();ORD=null;OERR="";drawOwner();badge()}
+async function setSt(id,s){CANCEL=null;try{await api.setStatus(id,s);const o=(ORD||[]).find(x=>x.id==id);if(o)o.status=s;OERR=""}catch(x){if(x.status==401){api.logout();ORD=null;OERR="Session expired. Sign in again."}else OERR="Could not update the order. Try again."}drawOwner();badge()}
+function cancelTap(id){if(CANCEL==id){setSt(id,"cancelled")}else{CANCEL=id;drawOwner();setTimeout(()=>{if(CANCEL==id){CANCEL=null;drawOwner()}},3500)}}
+async function showPhoto(id){try{const p=await api.photo(id);if(!p)return;const v=$("#pv");v.querySelector("img").src=p;v.hidden=false}catch(_){OERR="Could not load the photo.";drawOwner()}}
+const slotDay=d=>d==ymd(new Date())?"Today":d==ymd(dd(1))?"Tomorrow":longDate(d);
+const ONAME={new:"New",packed:"Packed",done:"Done",cancelled:"Cancelled"};
+function oCard(o){const hid=e(o.id),c=CANCEL==o.id;
+const its=(o.items||[]).map(i=>`<li>${e(i.name)} <span class="mu">${e(i.unit)}</span> × ${Number(i.qty)}</li>`).join("");
+let acts="";
+if(o.status=="new")acts=`<button class="btn sm k" onclick="setSt('${hid}','packed')">Mark packed</button>`;
+if(o.status=="packed")acts=`<button class="btn sm k" onclick="setSt('${hid}','done')">Mark done</button>`;
+if(o.status=="new"||o.status=="packed")acts+=`<button class="btn sm ghost" onclick="cancelTap('${hid}')">${c?"Tap again to cancel":"Cancel order"}</button>`;
+if(o.status=="done"||o.status=="cancelled")acts=`<button class="btn sm ghost" onclick="setSt('${hid}','new')">Move back to New</button>`;
+const when=new Date(o.created_at).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"});
+return `<article class="cd oc"><div class="oh"><div><span class="ono">${e(o.order_no)}</span> <span class="chip ${e(o.status)}">${ONAME[o.status]||e(o.status)}</span></div><b>${slotDay(o.slot_date)}, ${t12(o.slot_hour)} to ${t12(o.slot_hour+1)}</b></div>
+<p class="mu" style="margin:2px 0 8px">${e(o.type)} · placed ${e(when)}</p>
+<p style="margin:0"><b>${e(o.name)}</b> · <a href="tel:${e(o.phone)}">${e(o.phone)}</a></p>
+${o.address?`<p style="margin:2px 0 0">${e(o.address)}</p>`:""}
+${its?`<ul class="ol">${its}</ul>`:""}
+${o.note?`<p class="mu" style="margin:4px 0">Note: ${e(o.note)}</p>`:""}
+${o.has_photo?`<button class="lnk" onclick="showPhoto('${hid}')">📷 View handwritten list</button>`:""}
+<div class="oh" style="margin-top:10px"><span>${o.payment=="UPI"?"UPI (check the payment arrived)":"Cash on "+(o.type=="Pickup"?"pickup":"delivery")}</span><b class="ot">${o.total==null?"Total to be confirmed":inr(o.total)}</b></div>
+<div class="acts">${acts}</div></article>`}
+function drawOwner(){const a=$("#oapp");
+if(!SES){a.innerHTML=`<button class="back" onclick="show('home')">← Back to home</button><h1>Shop owner</h1><p class="mu">Sign in to see incoming orders.</p><section class="cd" style="max-width:460px;margin-top:22px"><h2>Sign in</h2>${LIVE?"":`<div class="pick" style="margin:0 0 6px">Demo mode: orders stay on this device only. Sign in with <b>${DEMO.email}</b> and password <b>${DEMO.pw}</b>.</div>`}<form onsubmit="doLogin();return false"><label class="f" for="lem">Email</label><input class="i" id="lem" type="email" autocomplete="username" value="${e(LEM)}"><label class="f" for="lpw">Password</label><input class="i" id="lpw" type="password" autocomplete="current-password"><button class="btn" type="submit" style="width:100%;margin-top:14px">Sign in</button></form>${OERR?`<div class="err">${e(OERR)}</div>`:""}</section>`;return}
+const L=ORD||[],cnt=s=>L.filter(o=>o.status==s).length,today=ymd(new Date()),tod=L.filter(o=>o.slot_date==today&&o.status!="cancelled");
+const val=tod.reduce((s,o)=>s+(+o.total||0),0);
+let rows=OF=="all"?L:L.filter(o=>o.status==OF);
+const key=o=>o.slot_date+String(o.slot_hour).padStart(2,"0");
+rows=rows.slice().sort(OF=="new"||OF=="packed"?(x,y)=>key(x).localeCompare(key(y)):(x,y)=>String(y.created_at).localeCompare(String(x.created_at)));
+const tabs=[["new","New"],["packed","Packed"],["done","Done"],["cancelled","Cancelled"],["all","All"]];
+a.innerHTML=`<button class="back" onclick="show('home')">← Back to home</button><div class="oh"><div><h1>Orders</h1><p class="mu">${e(SES.email)} · ${LIVE?"Live":"Demo mode, this device only"}</p></div><div class="acts" style="margin:0"><button class="btn sm ghost" onclick="loadOrders()">Refresh</button><button class="btn sm ghost" onclick="doLogout()">Sign out</button></div></div>
+<div class="tl-row"><div class="tl"><b>${cnt("new")}</b><span>New orders</span></div><div class="tl"><b>${tod.length}</b><span>Slots today</span></div><div class="tl"><b>${inr(val)}</b><span>Today’s value</span></div></div>
+<div class="tabs" role="tablist">${tabs.map(t=>`<button class="${OF==t[0]?"on":""}" onclick="OF='${t[0]}';drawOwner()">${t[1]} ${t[0]=="all"?L.length:cnt(t[0])}</button>`).join("")}</div>
+${OERR?`<div class="err">${e(OERR)}</div>`:""}
+${ORD==null&&!OERR?'<p class="mu">Loading orders…</p>':rows.length?rows.map(oCard).join(""):`<p class="mu" style="margin-top:14px">No ${OF=="all"?"":ONAME[OF].toLowerCase()+" "}orders yet. This page checks for new orders every 20 seconds.</p>`}`}
 
 drawHome();
-if(location.hash=="#order")show("order");
+if(location.hash=="#order")show("order");else if(location.hash=="#owner")show("owner");
 </script>
 <script>
 if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}
