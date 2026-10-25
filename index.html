@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Mahalaxmi Stores</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffc20e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="description" content="Pre-order groceries from Mahalaxmi Stores and pick a one-hour pickup or delivery slot between 9 AM and 8 PM.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Hind:wght@400;500;600&display=swap">
+<style>
+/* Layout: one sticky nav over two views. Home (hero with slot board, steps, stock, visit) hands the chosen slot to the order view (items, date, slot, details, sticky total). */
+:root{--ink:#1b1340;--paper:#fff8e7;--sun:#ffc20e;--chilli:#d3221f;--leaf:#0b7a3b;
+--bg:#fff8e7;--tx:#1b1340;--mu:#4a4570;--sh:#1b1340;
+--cd:#ffffff;--ln:#1b1340;--cs:#1b1340;--gl:#cff5dd;--onb:#1b1340;--onf:#fff8e7;--bad:#b3261e;--errbg:#fde4e1;--fld:#fffdf6;--fc:#d3221f;
+font-family:Hind,system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#150f33;--tx:#fff3d1;--mu:#c9c3e6;--sh:#ffc20e;--cd:#201950;--ln:#4d4396;--cs:#0a0620;--gl:#1d4a3a;--onb:#ffc20e;--onf:#1b1340;--bad:#ff8a80;--errbg:#4a1d2a;--fld:#150f33;--fc:#ffc20e;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#150f33;--tx:#fff3d1;--mu:#c9c3e6;--sh:#ffc20e;--cd:#201950;--ln:#4d4396;--cs:#0a0620;--gl:#1d4a3a;--onb:#ffc20e;--onf:#1b1340;--bad:#ff8a80;--errbg:#4a1d2a;--fld:#150f33;--fc:#ffc20e;color-scheme:dark}
+*,*:before,*:after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--tx);line-height:1.5;font-size:1.05rem;font-family:Hind,system-ui,sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+a{color:inherit}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.w{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:"Baloo 2",system-ui,sans-serif;line-height:1;margin:0;font-weight:800;text-wrap:balance}
+h1{font-size:clamp(2.6rem,9vw,5.4rem);letter-spacing:-.02em}
+h2{font-size:clamp(2rem,6vw,3.2rem);margin-bottom:12px}
+h3{font-size:1.3rem;font-weight:800}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);border-bottom:3px solid var(--tx)}
+.nv{display:flex;align-items:center;gap:16px;padding-block:10px}
+.lg{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:1.4rem;text-decoration:none;margin-right:auto;background:none;border:0;padding:0;color:var(--tx)}
+.nv a.l{text-decoration:none;font-weight:600;display:none}
+@media(min-width:720px){.nv a.l{display:inline}}
+.btn{display:inline-block;background:var(--chilli);color:#fff;border:3px solid var(--ink);border-radius:14px;padding:11px 20px;font-weight:600;text-decoration:none;text-align:center;box-shadow:4px 4px 0 var(--ink);transition:transform .1s}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.k{background:var(--ink);color:var(--paper)}
+.btn.o{background:var(--paper);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+:focus-visible{outline:3px solid var(--fc);outline-offset:3px}
+.hero{background:var(--sun);color:var(--ink);border-bottom:3px solid var(--ink);position:relative;overflow:hidden}
+.hg{display:grid;gap:34px;padding-block:40px 56px;align-items:center;position:relative}
+.hg>*{min-width:0}
+@media(min-width:900px){.hg{grid-template-columns:1.1fr 1fr;padding-block:60px 72px}}
+.stk{display:inline-block;background:var(--paper);border:3px solid var(--ink);border-radius:999px;padding:4px 14px;font-weight:600;transform:rotate(-3deg);margin-bottom:16px}
+.hero p.s{font-size:1.2rem;max-width:30ch;margin:16px 0 24px;font-weight:500}
+.ctas{display:flex;gap:14px;flex-wrap:wrap}
+.fl{position:absolute;font-size:2.6rem;width:72px;height:72px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;box-shadow:4px 4px 0 var(--ink);animation:drop .7s cubic-bezier(.3,1.5,.5,1) both}
+.f1{background:#ffd6e0;top:10px;right:6%;--r:12deg}.f2{background:#cff5dd;bottom:8px;left:46%;--r:-10deg;animation-delay:.12s}.f3{background:#d6e4ff;top:46%;right:1%;--r:8deg;animation-delay:.24s}
+@keyframes drop{from{transform:translateY(-120px) rotate(0);opacity:0}to{transform:rotate(var(--r));opacity:1}}
+@media(max-width:899px){.f2,.f3{display:none}}
+.tkt{background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:22px;padding:18px;box-shadow:8px 8px 0 var(--ink);transform:rotate(1.2deg);position:relative;z-index:1}
+.tkt:before{content:"";position:absolute;left:12px;right:12px;top:58px;border-top:3px dashed var(--ink);opacity:.35}
+.tkt h3{margin-bottom:22px}
+.dt{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}
+.dt button{border:3px solid var(--ink);background:#fff;border-radius:999px;padding:4px 14px;font-weight:600;color:var(--ink)}
+.dt button.on{background:var(--ink);color:var(--paper)}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.sl{background:#cff5dd;border:3px solid var(--ink);border-radius:12px;padding:6px 8px;text-align:left;color:var(--ink)}
+.sl b{display:block;font-size:.95rem}.sl span{font-size:.78rem;font-weight:600}
+.sl.few{background:#ffe27a}
+.sl.no{background:repeating-linear-gradient(45deg,#fff,#fff 6px,#eee 6px,#eee 12px);cursor:not-allowed;color:#6b6680}
+.sl.on{background:var(--ink);color:var(--paper)}
+.pk{margin:14px 0 4px;font-weight:600;min-height:3em}
+.tkt .btn{width:100%}
+.mq{background:var(--ink);color:var(--sun);border-bottom:3px solid var(--ink);overflow:hidden;white-space:nowrap;font-family:"Baloo 2",sans-serif;font-weight:800;font-size:1.3rem;padding:8px 0}
+.mq div{display:inline-block;animation:mq 28s linear infinite}
+@keyframes mq{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.mq div{animation:none}.fl{animation:none;transform:rotate(var(--r))}html{scroll-behavior:auto}}
+.sec{padding-block:60px}
+.steps{display:grid;gap:16px;margin-top:24px;padding:0;list-style:none}
+@media(min-width:760px){.steps{grid-template-columns:repeat(4,1fr)}}
+.steps li{border:3px solid var(--ink);border-radius:20px;padding:18px;box-shadow:5px 5px 0 var(--sh);color:#fff}
+.steps li:nth-child(1){background:var(--leaf)}.steps li:nth-child(2){background:var(--chilli)}.steps li:nth-child(3){background:var(--ink);border-color:var(--sun)}.steps li:nth-child(4){background:var(--sun);color:var(--ink)}
+.steps .n{font-family:"Baloo 2",sans-serif;font-size:3rem;font-weight:800;line-height:.9}
+.steps p{margin:6px 0 0}
+.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:22px}
+@media(min-width:620px){.cats{grid-template-columns:repeat(5,1fr)}}
+.ct{border:3px solid var(--ink);border-radius:18px;padding:16px 8px;text-align:center;font-weight:600;color:var(--ink);box-shadow:4px 4px 0 var(--sh)}
+.ct i{display:block;font-style:normal;font-size:2.4rem}
+.ct:nth-child(5n+1){background:#ffe0b2;transform:rotate(-1.5deg)}.ct:nth-child(5n+2){background:#cff5dd;transform:rotate(1deg)}.ct:nth-child(5n+3){background:#ffd6e0;transform:rotate(-.8deg)}.ct:nth-child(5n+4){background:#d6e4ff;transform:rotate(1.4deg)}.ct:nth-child(5n){background:#fff3b0;transform:rotate(-1deg)}
+.vis{display:grid;gap:24px}
+.vis>*{min-width:0}
+@media(min-width:800px){.vis{grid-template-columns:1fr 1.1fr;align-items:center}}
+.vc{border:3px solid var(--tx);border-radius:20px;padding:18px;display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:0;background:var(--paper);color:var(--ink);box-shadow:6px 6px 0 var(--sh)}
+.vc dt{font-weight:600}.vc dd{margin:0;min-width:0}
+.cta{background:var(--chilli);color:#fff;text-align:center;padding:56px 18px;border:3px solid var(--ink);border-radius:28px;box-shadow:8px 8px 0 var(--sh);margin-bottom:34px}
+.cta p{max-width:36ch;margin:0 auto 22px;font-size:1.15rem}
+.cta .btn{background:var(--sun);color:var(--ink)}
+footer{padding-bottom:30px;color:var(--mu);font-size:.9rem}
+
+/* Order view */
+.ov{padding-block:26px 48px}
+.back{background:none;border:0;padding:0;font-weight:600;text-decoration:underline;margin-bottom:14px;color:var(--tx)}
+.ov h1{font-size:clamp(2.4rem,8vw,4rem)}
+.mu{color:var(--mu);font-size:.92rem;margin:6px 0 0}
+.lay{display:grid;gap:18px;margin-top:22px}
+.lay>*{min-width:0}
+@media(min-width:860px){.lay{grid-template-columns:1.55fr 1fr;align-items:start}.sum{position:sticky;top:calc(84px + env(safe-area-inset-top,0px))}}
+.cd{background:var(--cd);color:var(--tx);border:3px solid var(--ln);border-radius:20px;padding:18px;margin-bottom:18px;box-shadow:5px 5px 0 var(--cs)}
+.cd h2{font-size:1.5rem;margin:0 0 12px}
+.it{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 0;border-bottom:2px solid var(--ln)}
+.it:last-of-type{border-bottom:0}
+.th{width:44px;height:44px;border-radius:12px;background:var(--gl);border:2px solid var(--ln);display:grid;place-items:center;font-size:1.5rem}
+.it .mu{margin:0}
+.qty{display:flex;align-items:center;border:3px solid var(--ln);border-radius:999px}
+.qty button{background:none;border:0;width:36px;height:34px;font-size:1.25rem;font-weight:600;color:var(--tx)}
+.qty span{min-width:24px;text-align:center;font-weight:600}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mh button{border:3px solid var(--ln);background:var(--cd);border-radius:12px;width:40px;height:36px;color:var(--tx)}
+.mh button:disabled{opacity:.3;cursor:not-allowed}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal .dh{font-size:.78rem;color:var(--mu);padding:4px 0;font-weight:600}
+.day{aspect-ratio:1;max-width:100%;border:2px solid transparent;border-radius:12px;background:none;font-weight:600;color:var(--tx);font-variant-numeric:tabular-nums}
+.day:hover:not(:disabled){background:var(--gl)}
+.day:disabled{opacity:.3;cursor:not-allowed}
+.day.t{border-color:var(--tx)}
+.day.on{background:var(--onb);color:var(--onf);border-color:var(--onb)}
+.os{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:8px}
+.os label,.seg label{border:3px solid var(--ln);border-radius:12px;padding:8px 10px;cursor:pointer;position:relative;font-weight:600;font-size:.95rem;display:block;background:var(--cd)}
+.os label small{display:block;font-weight:500;color:var(--mu);font-size:.8rem}
+.os label.fw{background:var(--gl)}
+.os label:has(input:checked),.seg label:has(input:checked){background:var(--onb);color:var(--onf);border-color:var(--onb)}
+.os label:has(input:checked) small{color:var(--onf)}
+.os label:has(:focus-visible),.seg label:has(:focus-visible){outline:3px solid var(--fc);outline-offset:2px}
+.os label.x{opacity:.45;cursor:not-allowed;text-decoration:line-through}
+.vh{position:absolute;opacity:0;width:1px;height:1px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg label{text-align:center;padding:10px}
+label.f{display:block;font-weight:600;font-size:.92rem;margin:12px 0 4px}
+input.i,textarea{background:var(--fld);color:var(--tx);border:3px solid var(--ln);border-radius:12px;padding:10px 12px;width:100%}
+.tr{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-variant-numeric:tabular-nums}
+.tr.top{border-top:2px solid var(--ln);margin-top:8px;padding-top:10px}
+.big{font-family:"Baloo 2",sans-serif;font-size:2rem;font-weight:800;line-height:1.1;text-align:right}
+.sum .btn,.ok .btn{margin-top:14px}
+.sum .btn{width:100%}
+.err{background:var(--errbg);color:var(--bad);border-radius:12px;padding:8px 12px;margin-top:10px;font-weight:600}
+.pick{background:var(--gl);border:2px solid var(--ln);border-radius:12px;padding:10px 12px;margin-top:10px;font-weight:600}
+.qrb{text-align:center;background:var(--gl);border:2px solid var(--ln);border-radius:14px;padding:12px;margin:8px 0}
+#qr{display:inline-block;background:#fff;padding:10px;border-radius:10px;line-height:0}
+.qrb p{margin:8px 0 0}
+.up{display:block;border:3px dashed var(--ln);border-radius:14px;padding:14px;text-align:center;font-weight:600;cursor:pointer;margin-top:10px}
+.up small{display:block;font-weight:400;color:var(--mu)}
+.vh:focus-visible+.up{outline:3px solid var(--fc);outline-offset:2px}
+.lp{width:100%;max-height:340px;object-fit:contain;border-radius:12px;border:2px solid var(--ln);background:var(--cd);margin-top:10px}
+.rm{background:none;border:0;color:var(--bad);font-weight:600;margin-top:8px;text-decoration:underline;padding:0}
+.ok{text-align:center;padding:34px 18px}
+.cd .okh{font-size:clamp(2rem,7vw,3rem);margin:6px 0 10px}
+.ok p{margin:6px 0}
+.ok .lp{max-width:260px}
+</style>
+</head>
+<body>
+
+
+<nav><div class="w nv"><button class="lg" onclick="show('home')">🧺 Mahalaxmi Stores</button><a class="l" href="#how" onclick="return sec('how')">How it works</a><a class="l" href="#shop" onclick="return sec('shop')">What we stock</a><a class="l" href="#visit" onclick="return sec('visit')">Visit</a><button class="btn" onclick="toOrder()">Pre-order</button></div></nav>
+
+<div id="home">
+<main id="top">
+<section class="hero"><div class="w hg"><span class="fl f1" aria-hidden="true">🍅</span><span class="fl f2" aria-hidden="true">🥛</span><span class="fl f3" aria-hidden="true">🌶️</span>
+<div style="position:relative;z-index:1"><span class="stk">Open 9 AM to 8 PM, every day</span><h1>Skip the queue. Grab your groceries.</h1><p class="s">Fill your basket, pick a one-hour slot, and we’ll have it packed before you walk in.</p><div class="ctas"><button class="btn k" onclick="toOrder()">Pre-order now</button><a class="btn o" href="#how" onclick="return sec('how')">See how it works</a></div></div>
+<div class="tkt" aria-label="Slot board"><h3>Pick your slot token</h3><div class="dt" id="dt"></div><div class="sg" id="sg"></div><p class="pk" id="pk" aria-live="polite">Tap an open slot to start. Availability shown is sample data.</p><button class="btn" id="goBtn" onclick="toOrder()">Pre-order now</button></div></div></section>
+<div class="mq" aria-hidden="true"><div>🍅 Fresh vegetables ✦ 🌾 Rice and atta ✦ 🫘 Dal and pulses ✦ 🥛 Milk and bread ✦ 🌶️ Masalas ✦ 🫒 Oil and ghee ✦ 🧼 Household ✦ 🍅 Fresh vegetables ✦ 🌾 Rice and atta ✦ 🫘 Dal and pulses ✦ 🥛 Milk and bread ✦ 🌶️ Masalas ✦ 🫒 Oil and ghee ✦ 🧼 Household ✦ </div></div>
+<section class="sec" id="how"><div class="w"><h2>Rush hour? Not here.</h2><p style="color:var(--mu);margin:0">Four quick steps from basket to doorstep.</p><ol class="steps"><li><div class="n">1</div><h3>Fill your basket</h3><p>Add rice, dal, vegetables, milk and more.</p></li><li><div class="n">2</div><h3>Pick a slot</h3><p>Book up to 30 days ahead in one-hour windows.</p></li><li><div class="n">3</div><h3>Pay your way</h3><p>Scan a UPI QR code or pay cash on collection.</p></li><li><div class="n">4</div><h3>Collect or relax</h3><p>Show your token at the counter, or wait for delivery.</p></li></ol></div></section>
+<section class="sec" id="shop" style="padding-top:10px"><div class="w"><h2>Everything for your kitchen</h2><p style="color:var(--mu);margin:0">From daily vegetables to household basics.</p><div class="cats"><div class="ct"><i>🥬</i>Fruits and vegetables</div><div class="ct"><i>🌾</i>Rice, atta and grains</div><div class="ct"><i>🫘</i>Dal and pulses</div><div class="ct"><i>🫒</i>Oil and ghee</div><div class="ct"><i>🥛</i>Dairy and bakery</div><div class="ct"><i>🍪</i>Snacks and packaged foods</div><div class="ct"><i>🌶️</i>Spices and masalas</div><div class="ct"><i>🧃</i>Beverages</div><div class="ct"><i>🧼</i>Household essentials</div><div class="ct"><i>🪥</i>Personal care</div></div></div></section>
+<section class="sec" id="visit" style="padding-top:20px"><div class="w vis"><div><h2>Come say hello</h2><p style="color:var(--mu);margin:0">Walk in any day, or collect your pre-order straight from the counter.</p></div><dl class="vc"><dt>Address</dt><dd>12 Market Road, Your Town (sample address)</dd><dt>Phone</dt><dd><a href="tel:+919876543210">+91 98765 43210</a> (sample)</dd><dt>Hours</dt><dd>9 AM to 8 PM, every day</dd><dt>Payment</dt><dd>UPI and cash</dd></dl></div></section>
+<section class="w"><div class="cta"><h2>Your basket is waiting.</h2><p>Choose your slot now and skip the evening rush.</p><button class="btn" onclick="toOrder()">Pre-order now</button></div></section>
+</main>
+<footer><div class="w">Mahalaxmi Stores. Contact details, products and slot availability on this site are sample content.</div></footer>
+</div>
+
+<main class="w ov" id="order" hidden><div id="app"></div></main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),e=s=>String(s??"").replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+const inr=n=>"₹"+Number(n).toLocaleString("en-IN"),ymd=d=>d.toLocaleDateString("en-CA");
+const H=[9,10,11,12,13,14,15,16,17,18,19],ADV=2,FREE=500,DEL=30,MIN=150,DAYS=30;
+const t12=h=>(h%12||12)+":00 "+(h<12?"AM":"PM");
+const dd=n=>{const d=new Date();d.setDate(d.getDate()+n);return d};
+const seed=(d,h)=>(+d.replace(/-/g,"")*31+h*17)%7;
+const full=(d,h)=>seed(d,h)==0,fewl=(d,h)=>seed(d,h)==3;
+function state(d,h){const s=new Date(d+"T00:00:00");s.setHours(h);if(s-Date.now()<ADV*36e5)return"Too soon";if(full(d,h))return"Full";return""}
+const isOpen=d=>H.some(h=>!state(d,h));
+const longDate=d=>new Date(d+"T00:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});
+
+/* shared state: home slot board and order form */
+let day=0,pick=null;
+const ITEMS=[["Tomato","1 kg",35,"🍅"],["Onion","1 kg",38,"🧅"],["Toor dal","1 kg",165,"🫘"],["Sona Masoori rice","10 kg",580,"🍚"],["Toned milk","500 ml",30,"🥛"],["Desi ghee","500 ml",340,"🧈"]];
+const UPI="yourshop@upi",SHOP="Mahalaxmi Stores";
+let LIST=null,LERR="",pay="Cash",Q=ITEMS.map((x,i)=>i<2?1:0),type="Pickup",date=null,slot=null,F={name:"",phone:"",addr:"",note:""},V=new Date(),err="";
+V.setDate(1);V.setHours(0,0,0,0);
+
+/* navigation */
+function show(v,s){$("#home").hidden=v!="home";$("#order").hidden=v!="order";if(v=="order")drawOrder();if(s){const t=document.getElementById(s);if(t)t.scrollIntoView();return}window.scrollTo(0,0)}
+function sec(s){show("home",s);return false}
+function toOrder(){if(pick!=null){date=ymd(dd(day));slot=pick;V=new Date(date+"T00:00:00");V.setDate(1);err=""}show("order")}
+
+/* home: slot board */
+function drawHome(){
+$("#dt").innerHTML=[0,1,2].map(n=>`<button class="${n==day?"on":""}" onclick="day=${n};pick=null;drawHome()">${n?n==1?"Tomorrow":dd(n).toLocaleDateString("en-IN",{weekday:"short",day:"numeric"}):"Today"}</button>`).join("");
+const k=ymd(dd(day));
+$("#sg").innerHTML=H.map(h=>{const s=state(k,h),c=s?"no":fewl(k,h)?"few":"",l=s||(c=="few"?"Few left":"Open");return`<button class="sl ${c} ${pick==h?"on":""}" ${s?"disabled":""} onclick="pick=${h};drawHome()" aria-pressed="${pick==h}"><b>${t12(h)}</b><span>${l}</span></button>`}).join("");
+$("#pk").textContent=pick==null?"Tap an open slot to start. Availability shown is sample data.":"Great pick: "+longDate(k)+", "+t12(pick)+" to "+t12(pick+1)+".";
+$("#goBtn").textContent=pick==null?"Pre-order now":"Pre-order for "+t12(pick)}
+
+/* order */
+const sub=()=>ITEMS.reduce((a,x,i)=>a+x[2]*Q[i],0),dc=()=>type=="Delivery"&&sub()>0&&sub()<FREE?DEL:0,tot=()=>sub()+dc();
+function rd(){const f=$("#ofm");if(f)new FormData(f).forEach((v,k)=>{if(k in F)F[k]=v})}
+function drawOrder(){const now=new Date(),today=ymd(now),max=new Date();max.setDate(max.getDate()+DAYS);
+const y=V.getFullYear(),m=V.getMonth(),first=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate(),cells=[];
+for(let i=0;i<first;i++)cells.push("<span></span>");
+for(let d=1;d<=n;d++){const k=ymd(new Date(y,m,d)),dis=k<today||new Date(k+"T00:00:00")>max||!isOpen(k);cells.push(`<button class="day ${k==today?"t":""} ${k==date?"on":""}" ${dis?"disabled":""} onclick="pd('${k}')" aria-label="${new Date(k+"T00:00:00").toDateString()}" ${k==date?'aria-pressed="true"':""}>${d}</button>`)}
+const prev=new Date(y,m,0)<new Date(now.getFullYear(),now.getMonth(),1),next=new Date(y,m+1,1)>max,ok=(sub()>0||LIST)&&date&&slot!=null;
+$("#app").innerHTML=`<button class="back" onclick="show('home')">← Back to home</button><h1>Pre-order</h1><p class="mu">Pick items, a date and a one-hour slot between 9 AM and 8 PM.</p><div class="lay"><div>
+<section class="cd"><h2>1. Your items</h2>${ITEMS.map((x,i)=>`<div class="it"><div class="th">${x[3]}</div><div><b>${x[0]}</b><div class="mu">${x[1]}, ${inr(x[2])}</div></div><div class="qty"><button onclick="qt(${i},-1)" aria-label="Fewer ${x[0]}">−</button><span>${Q[i]}</span><button onclick="qt(${i},1)" aria-label="More ${x[0]}">+</button></div></div>`).join("")}<p class="mu">These are sample products for the demo.</p></section>
+<section class="cd"><h2>Have a handwritten list?</h2><p class="mu">Take a photo of your list and we’ll pack it for you. The shop reads it and confirms the final bill.</p>${LIST?`<img class="lp" src="${LIST}" alt="Your handwritten grocery list">`:""}<input id="lfile" class="vh" type="file" accept="image/jpeg,image/png,image/webp" onchange="lf(this)"><label class="up" for="lfile">📷 ${LIST?"Replace photo":"Add a photo of your list"}<small>JPG, PNG or WebP, up to 5 MB</small></label>${LIST?'<button class="rm" onclick="rd();LIST=null;LERR=\'\';drawOrder()">Remove photo</button>':""}${LERR?`<div class="err">${LERR}</div>`:""}</section>
+<section class="cd"><h2>2. Pickup or delivery</h2><div class="seg"><label><input class="vh" type="radio" name="ty" ${type=="Pickup"?"checked":""} onchange="ty('Pickup')">Pickup</label><label><input class="vh" type="radio" name="ty" ${type=="Delivery"?"checked":""} onchange="ty('Delivery')">Delivery</label></div></section>
+<section class="cd"><h2>3. Choose a date</h2><div class="mh"><button onclick="mv(-1)" ${prev?"disabled":""} aria-label="Previous month">‹</button><b>${V.toLocaleDateString("en-IN",{month:"long",year:"numeric"})}</b><button onclick="mv(1)" ${next?"disabled":""} aria-label="Next month">›</button></div><div class="cal">${["Su","Mo","Tu","We","Th","Fr","Sa"].map(x=>`<span class="dh">${x}</span>`).join("")}${cells.join("")}</div><p class="mu">Booking opens ${ADV} hours ahead and up to ${DAYS} days out. Greyed days have no open slots.</p></section>
+<section class="cd"><h2>4. Choose a time slot</h2>${date?`<div class="os">${H.map(h=>{const s=state(date,h),fw=!s&&fewl(date,h);return`<label class="${s?"x":fw?"fw":""}"><input class="vh" type="radio" name="sl" value="${h}" ${s?"disabled":""} ${slot==h?"checked":""} onchange="ps(${h})">${t12(h)}<small>to ${t12(h+1)}${s?", "+s.toLowerCase():fw?", few left":""}</small></label>`}).join("")}</div>`:'<p class="mu">Pick a date first to see open slots.</p>'}</section>
+<section class="cd"><h2>5. Your details</h2><form id="ofm" onsubmit="return false"><label class="f" for="fname">Full name</label><input class="i" id="fname" name="name" value="${e(F.name)}" autocomplete="name"><label class="f" for="fphone">Mobile number</label><input class="i" id="fphone" name="phone" value="${e(F.phone)}" inputmode="numeric" maxlength="10" autocomplete="tel"><label class="f" for="faddr">${type=="Delivery"?"Delivery address":"Address (only for delivery)"}</label><textarea id="faddr" name="addr" rows="2" ${type=="Pickup"?"disabled":""}>${e(F.addr)}</textarea><label class="f" for="fnote">Instructions (optional)</label><textarea id="fnote" name="note" rows="2">${e(F.note)}</textarea></form></section></div>
+<aside class="sum"><section class="cd"><h2>Order total</h2>${ITEMS.map((x,i)=>Q[i]?`<div class="tr"><span>${x[0]} × ${Q[i]}</span><span>${inr(x[2]*Q[i])}</span></div>`:"").join("")||(LIST?'<p class="mu">Handwritten list attached. The shop reads it and confirms your final total.</p>':'<p class="mu">Your cart is empty. Add items to see the total.</p>')}<div class="tr top"><span>Subtotal</span><b>${inr(sub())}</b></div>${type=="Delivery"?`<div class="tr"><span>Delivery</span><b>${dc()?inr(dc()):"Free"}</b></div>`:""}<div class="tr" style="align-items:center"><span>You pay</span><span class="big">${LIST&&!sub()?"To be confirmed":inr(tot())}</span></div>${LIST?`<p class="mu">${sub()?"Your photo list is extra. The shop adds it to this total after reading it.":"The shop reads your list and confirms the bill before you pay."}</p>`:""}${date&&slot!=null?`<div class="pick">${type}: ${longDate(date)}, ${t12(slot)} to ${t12(slot+1)}</div>`:'<p class="mu">Choose a date and slot to finish.</p>'}<div class="seg" style="margin:12px 0"><label><input class="vh" type="radio" name="py" ${pay=="Cash"?"checked":""} onchange="pm('Cash')">Cash</label><label><input class="vh" type="radio" name="py" ${pay=="UPI"?"checked":""} onchange="pm('UPI')">Pay online (UPI)</label></div>${pay=="UPI"?(tot()>0?`<div class="qrb"><div id="qr"></div><p>Scan with any UPI app to pay <b>${inr(tot())}</b></p><p class="mu">UPI ID: ${e(UPI)}</p><p><a href="${e(upiUrl())}">Open in a UPI app on this phone</a></p><p class="mu">Sample UPI ID: replace it with the shop’s real one. The order is not marked paid until the shop confirms the payment.</p></div>`:'<p class="mu">'+(LIST?"The payment QR appears once the shop confirms your bill. You can also pay in cash.":"Add items to generate the payment QR.")+'</p>'):`<p class="mu">Pay in cash on ${type=="Pickup"?"pickup":"delivery"}.</p>`}<p class="mu">Minimum order ${inr(MIN)}.</p>${err?`<div class="err">${err}</div>`:""}<button class="btn" onclick="place()" ${ok?"":"disabled"}>Place pre-order${LIST&&!sub()?"":", "+inr(tot())}</button></section></aside></div>`;qr()}
+function qt(i,d){rd();Q[i]=Math.max(0,Math.min(20,Q[i]+d));err="";drawOrder()}
+function ty(t){rd();type=t;err="";drawOrder()}
+function lf(i){rd();const f=i.files[0];LERR="";if(!f)return drawOrder();if(!/^image\/(jpeg|png|webp)$/.test(f.type)){LERR="Choose a JPG, PNG or WebP photo.";return drawOrder()}if(f.size>5242880){LERR="That photo is over 5 MB. Choose a smaller one.";return drawOrder()}const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);LIST=c.toDataURL("image/jpeg",.8);drawOrder()};im.onerror=()=>{LERR="That file could not be read as an image.";drawOrder()};im.src=r.result};r.readAsDataURL(f)}
+function pm(p){rd();pay=p;err="";drawOrder()}
+function upiUrl(){return"upi://pay?pa="+encodeURIComponent(UPI)+"&pn="+encodeURIComponent(SHOP)+"&am="+tot().toFixed(2)+"&cu=INR&tn="+encodeURIComponent("Pre-order "+SHOP)}
+function qr(){const b=$("#qr");if(!b)return;b.innerHTML="";if(typeof QRCode=="undefined"){b.outerHTML='<p class="err">The QR code could not load. Check your connection and reload.</p>';return}new QRCode(b,{text:upiUrl(),width:176,height:176,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M})}
+function mv(d){rd();V.setMonth(V.getMonth()+d);drawOrder()}
+function pd(k){rd();date=k;if(slot!=null&&state(k,slot))slot=null;err="";drawOrder()}
+function ps(h){rd();slot=h;err="";drawOrder()}
+function again(){Q=ITEMS.map((x,i)=>i<2?1:0);LIST=null;LERR="";type="Pickup";pay="Cash";date=null;slot=null;pick=null;F={name:"",phone:"",addr:"",note:""};err="";drawHome();drawOrder();window.scrollTo(0,0)}
+function place(){rd();const E=[],ph=F.phone.trim();
+if(!LIST&&sub()<MIN)E.push("Minimum order is "+inr(MIN)+".");
+if(!date||slot==null||state(date,slot))E.push("Choose an open date and time slot.");
+if(!F.name.trim())E.push("Enter your name.");
+if(!/^[6-9]\d{9}$/.test(ph))E.push("Enter a valid 10-digit Indian mobile number.");
+if(type=="Delivery"&&F.addr.trim().length<10)E.push("Enter your full delivery address.");
+if(E.length){err=E.join("<br>");return drawOrder()}
+const no="MS"+Math.floor(1000+Math.random()*9000)+"-"+Math.random().toString(36).slice(2,6).toUpperCase();
+$("#app").innerHTML=`<section class="cd ok"><div style="font-size:3rem">✅</div><h2 class="okh">Pre-order placed</h2><p>Order number <b>${no}</b></p><p>${type}: ${longDate(date)}, ${t12(slot)} to ${t12(slot+1)}</p><p class="big" style="text-align:center">${LIST&&!sub()?"Total to be confirmed":inr(tot())}</p>${LIST?'<img class="lp" src="'+LIST+'" alt="Your handwritten grocery list"><p class="mu">Handwritten list received. The shop reads it and confirms your bill.</p>':""}<p class="mu">${pay=="UPI"?"Payment status: awaiting verification by the shop. It is not marked paid until the shop confirms it.":"Pay in cash on "+(type=="Pickup"?"pickup":"delivery")+"."} This is a demo, so no order was sent to a shop.</p><button class="btn k" onclick="show('home')">Back to home</button> <button class="btn" onclick="again()">Order again</button></section>`;window.scrollTo(0,0)}
+
+drawHome();
+if(location.hash=="#order")show("order");
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}
+</script>
+
+</body>
+</html>
