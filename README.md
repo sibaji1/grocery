@@ -21,7 +21,7 @@ Demo mode keeps orders on one device only, so it is for testing the screens.
 Two layers, use either or both.
 
 A. Send button for customers (no setup beyond the number).
-   Put the shop's WhatsApp number in config.js as OWNER_WHATSAPP (country code, digits only, e.g. 919876543210).
+   Put the shop's WhatsApp number in config.js as OWNER_WHATSAPP (+91-9740736062).
    After placing an order the customer sees "Send on WhatsApp", which opens WhatsApp with the order
    details ready to send to the shop. It only works if the customer taps Send.
 
